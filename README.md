@@ -1,4 +1,4 @@
-# KumbhSahyogi
+<!-- # KumbhSahyogi
 
 A comprehensive platform for Kumbh Mela services including hotel bookings, medical facilities, transport options, and emergency services.
 
@@ -108,4 +108,4 @@ The project is configured with:
 
 ## Support
 
-For deployment issues or questions, please check the Vercel documentation or create an issue in this repository.
+For deployment issues or questions, please check the Vercel documentation or create an issue in this repository. -->
