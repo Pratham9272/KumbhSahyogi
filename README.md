@@ -15,7 +15,7 @@ A comprehensive platform for Kumbh Mela services including hotel bookings, medic
 
 - **Frontend**: React 18 + TypeScript + Vite
 - **UI Components**: Radix UI + Tailwind CSS
-- **Database**: PostgreSQL with Drizzle ORM
+- **Styling**: Tailwind CSS
 - **Deployment**: Vercel
 
 ## Local Development
@@ -39,13 +39,7 @@ A comprehensive platform for Kumbh Mela services including hotel bookings, medic
 
 ### Prerequisites
 
-1. **Database Setup**: You'll need a PostgreSQL database. You can use:
-   - [Neon](https://neon.tech) (recommended for Vercel)
-   - [Supabase](https://supabase.com)
-   - [Railway](https://railway.app)
-   - Any other PostgreSQL provider
-
-2. **Vercel Account**: Sign up at [vercel.com](https://vercel.com)
+1. **Vercel Account**: Sign up at [vercel.com](https://vercel.com)
 
 ### Deployment Steps
 
@@ -62,20 +56,15 @@ A comprehensive platform for Kumbh Mela services including hotel bookings, medic
    - Import your GitHub repository
    - Vercel will automatically detect it as a Vite project
 
-3. **Configure Environment Variables**:
-   - In your Vercel project dashboard, go to Settings → Environment Variables
-   - Add the following variable:
-     - `DATABASE_URL`: Your PostgreSQL connection string
-
-4. **Deploy**:
+3. **Deploy**:
    - Click "Deploy" in Vercel
    - Vercel will automatically build and deploy your application
 
+
+
 ### Environment Variables
 
-Make sure to set these in your Vercel project settings:
-
-- `DATABASE_URL`: Your PostgreSQL connection string
+This is a frontend-only application, so no environment variables are required for deployment.
 
 ### Build Configuration
 
