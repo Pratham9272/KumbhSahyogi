@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "node index.js",
+    "build": "echo \"API server — no build step required\"",
     "seed": "node scripts/seed.js",
     "seed:hospitals": "node scripts/seed_hospitals_manual.js",
     "seed:hotels": "node scripts/seed_hotels_manual.js",
