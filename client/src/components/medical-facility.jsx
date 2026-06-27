@@ -1,6 +1,8 @@
 import { Button } from '@/components/ui/button';
+import { useLocation } from 'wouter';
 
 export default function MedicalFacilityCard({ facility, onGetDirections }) {
+  const [, setLocation] = useLocation();
   return (
     <div className="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow" data-testid={`card-medical-${facility.id}`}>
       <div className="flex items-start justify-between">
@@ -41,7 +43,19 @@ export default function MedicalFacilityCard({ facility, onGetDirections }) {
           </div>
         </div>
         <Button 
-          onClick={() => onGetDirections(facility.id)}
+          onClick={() => {
+            // Store facility data for navigation
+            const facilityData = {
+              name: facility.name,
+              address: facility.address,
+              coordinates: facility.coordinates || { lat: 19.9975, lng: 73.7898 },
+              type: facility.type,
+              timestamp: new Date().toISOString()
+            };
+            
+            localStorage.setItem('navigationDestination', JSON.stringify(facilityData));
+            setLocation('/navigation');
+          }}
           className="bg-kumbh-orange text-white hover:bg-kumbh-deep ml-4"
           data-testid={`button-directions-medical-${facility.id}`}
         >

@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { useLanguage } from '@/hooks/use-language';
 import ServiceCard from '@/components/service-card';
 import TransportCard from '@/components/transport-card';
+import StayCard from '@/components/stay-card';
 import HotelCard from '@/components/hotel-card';
 import MedicalFacilityCard from '@/components/medical-facility';
 import TransportOption from '@/components/transport-option';
+import ChatbotWidget from '@/components/chatbot-widget';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -33,12 +35,12 @@ export default function Home({ onSOSClick }) {
 
   const handleHotelBook = (hotelId) => {
     console.log('Booking hotel:', hotelId);
-    // Implement actual booking logic
+    setLocation('/hotel-booking');
   };
 
   const handleGetDirections = (facilityId) => {
     console.log('Getting directions to:', facilityId);
-    // Implement directions logic
+    setLocation('/medical-services');
   };
 
   const handleCallEmergency = (phone) => {
@@ -48,13 +50,22 @@ export default function Home({ onSOSClick }) {
   const handleSearchHotels = (e) => {
     e.preventDefault();
     console.log('Searching hotels with filters:', searchFilters);
-    // Implement actual search logic
+    setLocation('/hotel-booking');
   };
 
   const handlePlanRoute = (e) => {
     e.preventDefault();
     console.log('Planning route:', routeFilters);
-    // Implement route planning logic
+    
+    // Store route data for navigation page
+    const routeData = {
+      from: routeFilters.from,
+      to: routeFilters.to,
+      timestamp: new Date().toISOString()
+    };
+    
+    localStorage.setItem('plannedRoute', JSON.stringify(routeData));
+    setLocation('/navigation');
   };
 
   const handleTransportToCity = () => {
@@ -63,6 +74,18 @@ export default function Home({ onSOSClick }) {
 
   const handleTransportInCity = () => {
     setLocation('/transport/in-city');
+  };
+
+  const handleNavigation = () => {
+    setLocation('/navigation');
+  };
+
+  const handleCompleteNavigation = () => {
+    setLocation('/complete-navigation');
+  };
+
+  const handleTestingModule = () => {
+    setLocation('/transport/testing');
   };
 
   return (
@@ -74,8 +97,8 @@ export default function Home({ onSOSClick }) {
             {/* Hero Image */}
             <div className="relative mb-8 rounded-xl overflow-hidden shadow-2xl">
               <img 
-                src="https://images.unsplash.com/photo-1544077960-604201fe74bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=400" 
-                alt="Maha Kumbh gathering with pilgrims" 
+                src="/assets/hero-image.jpg" 
+                alt="Nashik Kumbh Mela - Sacred Godavari River with pilgrims and temples" 
                 className="w-full h-48 sm:h-64 object-cover"
                 data-testid="img-hero-kumbh"
               />
@@ -139,8 +162,8 @@ export default function Home({ onSOSClick }) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            <ServiceCard
-              title={t('hotel.title')}
+            <StayCard
+              title="Stay"
               titleHindi={t('hotel.title.hindi')}
               description="Find verified accommodations near your location"
               icon={
@@ -148,7 +171,7 @@ export default function Home({ onSOSClick }) {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                 </svg>
               }
-              onClick={() => scrollToSection('hotel-section')}
+              onHotelsClick={() => setLocation('/hotel-booking')}
               badge="500+ Hotels"
               gradientFrom="from-orange-50"
               gradientTo="to-orange-100"
@@ -167,7 +190,7 @@ export default function Home({ onSOSClick }) {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                 </svg>
               }
-              onClick={() => scrollToSection('medical-section')}
+              onClick={() => setLocation('/medical-services')}
               badge="100+ Centers"
               gradientFrom="from-red-50"
               gradientTo="to-red-100"
@@ -195,6 +218,9 @@ export default function Home({ onSOSClick }) {
               testId="service-transport"
               onToCityClick={handleTransportToCity}
               onInCityClick={handleTransportInCity}
+              onNavigationClick={handleNavigation}
+              onCompleteNavigationClick={handleCompleteNavigation}
+              onTestingClick={handleTestingModule}
             />
 
             <ServiceCard
@@ -376,18 +402,32 @@ export default function Home({ onSOSClick }) {
           </div>
 
           {/* Transport Options */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
             {[
-              { name: 'Shuttle Buses', hindi: 'शटल बसें', desc: 'Free shuttles between major ghats', status: '🟢 Active', color: 'bg-yellow-100 text-yellow-600' },
-              { name: 'Local Trains', hindi: 'स्थानीय ट्रेनें', desc: 'Connect to Mumbai & Pune', status: '🟢 Running', color: 'bg-blue-100 text-blue-600' },
-              { name: 'Auto Rickshaw', hindi: 'ऑटो रिक्शा', desc: 'Short distance travel', status: '🟢 Available', color: 'bg-green-100 text-green-600' },
-              { name: 'Walking Routes', hindi: 'पैदल मार्ग', desc: 'Guided walking paths', status: '📍 Live GPS', color: 'bg-purple-100 text-purple-600' }
+              { name: 'Testing Module', hindi: 'Testing Module', desc: 'Smooth guided transport flow', status: 'Testing', color: 'bg-orange-100 text-orange-600', link: '/transport/testing' },
+              { name: 'Shuttle Buses', hindi: 'शटल बसें', desc: 'Free shuttles between major ghats', status: '�︢ Active', color: 'bg-yellow-100 text-yellow-600', link: null },
+              { name: 'Local Trains', hindi: 'स्थानीय ट्रेनें', desc: 'Connect to Mumbai & Pune', status: '�︢ Running', color: 'bg-blue-100 text-blue-600', link: null },
+              { name: 'Parking', hindi: 'पार्किंग', desc: 'Book parking spaces', status: '�︢ Available', color: 'bg-purple-100 text-purple-600', link: '/parking' },
+              { name: 'Auto Rickshaw', hindi: 'ऑटो रिक्शा', desc: 'Short distance travel', status: '�︢ Available', color: 'bg-green-100 text-green-600', link: null }
             ].map((option, index) => (
-              <div key={index} className="bg-white p-6 rounded-2xl shadow-lg text-center" data-testid={`card-transport-option-${index}`}>
+              <div 
+                key={index} 
+                className={`bg-white p-6 rounded-2xl shadow-lg text-center ${
+                  option.link ? 'cursor-pointer hover:shadow-xl transition-shadow' : ''
+                }`}
+                data-testid={`card-transport-option-${index}`}
+                onClick={() => option.link && setLocation(option.link)}
+              >
                 <div className={`${option.color} p-4 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4`}>
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                  </svg>
+                  {option.name === 'Testing Module' ? (
+                    <span className="text-2xl font-bold">T</span>
+                  ) : option.link ? (
+                    <span className="text-3xl">🅿️</span>
+                  ) : (
+                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                  )}
                 </div>
                 <h3 className="font-bold mb-2" data-testid={`text-transport-option-name-${index}`}>
                   {option.name}
@@ -573,6 +613,7 @@ export default function Home({ onSOSClick }) {
           </div>
         </div>
       </section>
+      <ChatbotWidget />
     </div>
   );
 }

@@ -1,6 +1,8 @@
 import { Button } from '@/components/ui/button';
+import { useLocation } from 'wouter';
 
 export default function HotelCard({ hotel, onBook }) {
+  const [, setLocation] = useLocation();
   const renderStars = (rating) => {
     const numRating = parseFloat(rating);
     const fullStars = Math.floor(numRating);
@@ -24,7 +26,8 @@ export default function HotelCard({ hotel, onBook }) {
       <img 
         src={hotel.imageUrl || 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=250'} 
         alt={`${hotel.name} room`}
-        className="w-full h-48 object-cover"
+        className="w-full h-48 object-cover object-center"
+        style={{ minHeight: '192px' }}
         data-testid={`img-hotel-${hotel.id}`}
       />
       <div className="p-6">
@@ -53,7 +56,24 @@ export default function HotelCard({ hotel, onBook }) {
             <span className="text-sm text-gray-600">/night</span>
           </div>
           <Button 
-            onClick={() => onBook(hotel.id)}
+            onClick={() => {
+              // Store hotel data for booking page
+              const hotelData = {
+                id: hotel.id,
+                name: hotel.name,
+                price: hotel.price,
+                location: hotel.location,
+                distance: hotel.distance,
+                rating: hotel.rating,
+                reviews: hotel.reviews,
+                verified: hotel.verified,
+                imageUrl: hotel.imageUrl,
+                timestamp: new Date().toISOString()
+              };
+              
+              localStorage.setItem('selectedHotel', JSON.stringify(hotelData));
+              setLocation('/hotel-booking');
+            }}
             className="bg-kumbh-orange text-white hover:bg-kumbh-deep"
             data-testid={`button-book-hotel-${hotel.id}`}
           >

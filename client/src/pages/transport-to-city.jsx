@@ -28,27 +28,36 @@ export default function TransportToCity() {
       name: 'By Road',
       nameHindi: 'सड़क मार्ग से',
       icon: '🚗',
-      description: 'Bus, Car, Taxi services',
+      description: 'GPS Navigation & Route Planning',
       color: 'bg-green-500',
-      features: ['Multiple operators', 'Flexible timing', 'Door-to-door service']
+      features: ['Real-time GPS', 'Route optimization', 'Turn-by-turn navigation']
+    },
+    {
+      id: 'bus',
+      name: 'Bus Booking',
+      nameHindi: 'बस बुकिंग',
+      icon: '🚌',
+      description: 'State & Private Bus Services',
+      color: 'bg-blue-500',
+      features: ['MSRTC buses', 'Private operators', 'AC/Non-AC options']
     },
     {
       id: 'train',
-      name: 'By Train',
-      nameHindi: 'रेल मार्ग से',
+      name: 'Train Booking',
+      nameHindi: 'ट्रेन बुकिंग',
       icon: '🚂',
-      description: 'Railway connections to Nashik',
-      color: 'bg-blue-500',
-      features: ['Comfortable journey', 'Scenic routes', 'Affordable pricing']
+      description: 'Indian Railways to Nashik',
+      color: 'bg-purple-500',
+      features: ['IRCTC booking', 'Multiple classes', 'Advance booking']
     },
     {
-      id: 'air',
-      name: 'By Air',
-      nameHindi: 'हवाई मार्ग से',
-      icon: '✈️',
-      description: 'Flight connections to Nashik',
-      color: 'bg-purple-500',
-      features: ['Fastest option', 'Premium service', 'Limited availability']
+      id: 'cab',
+      name: 'Cab Booking',
+      nameHindi: 'कैब बुकिंग',
+      icon: '🚕',
+      description: 'Ola, Uber & Local Taxis',
+      color: 'bg-orange-500',
+      features: ['Ola/Uber', 'Local taxis', 'Door-to-door service']
     }
   ];
 
@@ -58,6 +67,12 @@ export default function TransportToCity() {
     // Navigate to specific transport pages
     if (transportId === 'road') {
       setLocation('/transport/road');
+    } else if (transportId === 'bus') {
+      setLocation('/transport/bus');
+    } else if (transportId === 'train') {
+      setLocation('/transport/train');
+    } else if (transportId === 'cab') {
+      setLocation('/transport/cab');
     }
   };
 
@@ -201,7 +216,7 @@ export default function TransportToCity() {
         </div>
 
         {/* Transport Options */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {transportOptions.map((transport) => (
             <Card 
               key={transport.id}
