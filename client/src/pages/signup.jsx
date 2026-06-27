@@ -8,16 +8,20 @@ import { consumeBookingRedirect } from '@/lib/booking-flow';
 
 export default function Signup() {
   const [, setLocation] = useLocation();
-  const { signup } = useAuth();
+  const { signup, sendSignupOtp } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    otp: ''
   });
   const [error, setError] = useState('');
+  const [info, setInfo] = useState('');
   const [loading, setLoading] = useState(false);
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -25,13 +29,46 @@ export default function Signup() {
       [e.target.name]: e.target.value
     });
     setError('');
+    setInfo('');
+  };
+
+  const handleSendOtp = async () => {
+    setError('');
+    setInfo('');
+
+    const email = formData.email.trim();
+    if (!email) {
+      setError('Please enter your email address first');
+      return;
+    }
+
+    setOtpLoading(true);
+    const result = await sendSignupOtp(email);
+    setOtpLoading(false);
+
+    if (result.success) {
+      setOtpSent(true);
+      setInfo(result.message);
+    } else {
+      setError(result.message);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setInfo('');
 
-    // Validation
+    if (!otpSent) {
+      setError('Please send and enter the email verification code first');
+      return;
+    }
+
+    if (!formData.otp.trim()) {
+      setError('Please enter the 6-digit verification code sent to your email');
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
@@ -46,20 +83,19 @@ export default function Signup() {
 
     const { confirmPassword, ...signupData } = formData;
     const result = await signup(signupData);
-    
+
     if (result.success) {
       setLocation(consumeBookingRedirect() || '/');
     } else {
       setError(result.message);
     }
-    
+
     setLoading(false);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-kumbh-light via-white to-orange-50 py-12 px-4">
       <div className="max-w-md mx-auto">
-        {/* Header */}
         <div className="text-center mb-8">
           <div className="bg-kumbh-orange text-white p-4 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
             <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 24 24">
@@ -74,12 +110,17 @@ export default function Signup() {
           </p>
         </div>
 
-        {/* Signup Form */}
         <Card className="p-8 shadow-xl">
           <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
                 {error}
+              </div>
+            )}
+
+            {info && (
+              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+                {info}
               </div>
             )}
 
@@ -102,15 +143,47 @@ export default function Signup() {
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Email Address | ईमेल पता
               </label>
+              <div className="flex gap-2">
+                <Input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="your.email@example.com"
+                  required
+                  className="w-full"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleSendOtp}
+                  disabled={otpLoading || !formData.email.trim()}
+                  className="shrink-0 whitespace-nowrap"
+                >
+                  {otpLoading ? 'Sending...' : otpSent ? 'Resend OTP' : 'Send OTP'}
+                </Button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Email Verification Code | ईमेल सत्यापन कोड
+              </label>
               <Input
-                type="email"
-                name="email"
-                value={formData.email}
+                type="text"
+                name="otp"
+                value={formData.otp}
                 onChange={handleChange}
-                placeholder="your.email@example.com"
+                placeholder="Enter 6-digit code"
+                inputMode="numeric"
+                pattern="[0-9]{6}"
+                maxLength={6}
                 required
-                className="w-full"
+                className="w-full tracking-widest"
               />
+              <p className="text-xs text-gray-500 mt-1">
+                Click &quot;Send OTP&quot; to receive a code on your email (valid for 10 minutes).
+              </p>
             </div>
 
             <div>
@@ -190,7 +263,6 @@ export default function Signup() {
           </div>
         </Card>
 
-        {/* Benefits Box */}
         <Card className="mt-6 p-4 bg-green-50 border-green-200">
           <div className="flex items-start space-x-3">
             <div className="text-2xl">✨</div>

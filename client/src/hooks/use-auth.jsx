@@ -63,6 +63,27 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const sendSignupOtp = async (email) => {
+    try {
+      const response = await fetch(`${API_BASE}/api/auth/send-signup-otp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email })
+      });
+
+      const data = await response.json();
+      return {
+        success: response.ok && data.success,
+        message: data.message || 'Failed to send verification code'
+      };
+    } catch (error) {
+      console.error('Send OTP error:', error);
+      return { success: false, message: 'Network error. Please try again.' };
+    }
+  };
+
   const login = async (credentials) => {
     try {
       const response = await fetch(`${API_BASE}/api/auth/login`, {
@@ -107,6 +128,7 @@ export function AuthProvider({ children }) {
       user, 
       loading, 
       signup, 
+      sendSignupOtp,
       login, 
       logout, 
       isAuthenticated,
