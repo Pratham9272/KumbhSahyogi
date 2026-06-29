@@ -1,8 +1,8 @@
-/** MET Bhujbal Knowledge City, Nashik — fixed current location (browser GPS was inaccurate). */
+/** MET Bhujbal Knowledge City engineering building, Nashik - fixed current location. */
 export const MET_BHUJBAL_LOCATION = {
-  lat: 20.039372,
-  lng: 73.854805,
-  name: 'MET Bhujbal Knowledge City, Nashik',
+  lat: 20.042065847970886,
+  lng: 73.85013884226173,
+  name: 'MET Bhujbal Knowledge City Engineering Building, Nashik',
 };
 
 export const NASHIK_MAP_CENTER = {

@@ -6,6 +6,19 @@ import 'leaflet/dist/leaflet.css';
 
 const NASHIK_CENTER = [MET_BHUJBAL_LOCATION.lat, MET_BHUJBAL_LOCATION.lng];
 const NASHIK_APPROACH_RADIUS_KM = 35;
+const LIVE_LOCATION_ROUTE_VIA_POINTS = [
+  [20.03844390237274, 73.8553266032754],
+  [20.037610987837056, 73.85602653759757],
+  [20.036379119018513, 73.85698284517548],
+  [20.035495048837795, 73.85755056970149],
+  [20.034467608256485, 73.85831328496407],
+  [20.03279442609804, 73.8593631864473],
+  [20.032492099397466, 73.85887512563278],
+  [20.031498367790853, 73.85741669395699],
+  [20.03045942122079, 73.85587813173515],
+  [20.029967275549108, 73.85473130818849],
+];
+const LIVE_LOCATION_VIA_RADIUS_KM = 2;
 
 const demoLocations = [
   { name: 'Kokan (Ratnagiri)', coords: [16.9944, 73.3005] },
@@ -288,6 +301,32 @@ function haversineKm([lat1, lng1], [lat2, lng2]) {
   return 2 * R * Math.asin(Math.sqrt(a));
 }
 
+function getNearestRoutePoint(source) {
+  let nearestIndex = 0;
+  let minDistance = Infinity;
+
+  LIVE_LOCATION_ROUTE_VIA_POINTS.forEach((point, index) => {
+    const d = haversineKm(source, point);
+
+    if (d < minDistance) {
+      minDistance = d;
+      nearestIndex = index;
+    }
+  });
+
+  return nearestIndex;
+}
+
+function getRemainingRoute(source, destination) {
+  const nearestIndex = getNearestRoutePoint(source);
+
+  return [
+    source,
+    ...LIVE_LOCATION_ROUTE_VIA_POINTS.slice(nearestIndex),
+    destination,
+  ];
+}
+
 function formatDuration(seconds) {
   const mins = Math.max(1, Math.round(seconds / 60));
   if (mins < 60) return `${mins} min`;
@@ -309,6 +348,18 @@ async function fetchRoadRoute(points) {
     distanceKm: route.distance / 1000,
     durationSec: route.duration,
   };
+}
+
+function getRouteWaypoints(sourceCoords, targetCoords, options = {}) {
+
+  const isLiveLocationRoute =
+    haversineKm(sourceCoords, NASHIK_CENTER) <= LIVE_LOCATION_VIA_RADIUS_KM;
+
+  if (!isLiveLocationRoute && !options.forceViaPoints)
+    return [sourceCoords, targetCoords];
+
+  return getRemainingRoute(sourceCoords, targetCoords);
+
 }
 
 function detectSectorFromRoute(routeCoords) {
@@ -457,13 +508,17 @@ export default function CompleteNavigation() {
     });
   }, [navigationState, setLocation]);
 
-  async function runFlow(sourceCoords, sourceName) {
+  async function runFlow(sourceCoords, sourceName, options = {}) {
     try {
       setIsLoading(true);
       setError('');
-      const routeToNashik = await fetchRoadRoute([sourceCoords, NASHIK_CENTER]);
+      const routeToNashik = await fetchRoadRoute(
+        getRouteWaypoints(sourceCoords, NASHIK_CENTER, options)
+      );
       const sector = detectSectorFromRoute(routeToNashik.coords);
-      const routeToEntry = await fetchRoadRoute([sourceCoords, sector.entry]);
+      const routeToEntry = await fetchRoadRoute(
+        getRouteWaypoints(sourceCoords, sector.entry, options)
+      );
       const routeInsideSector = await fetchSectorRouteSegments(sector);
       setNavigationState({
         sourceCoords,
@@ -489,7 +544,7 @@ export default function CompleteNavigation() {
   function useMyLocation() {
     requestCurrentLocation((position) => {
       const source = [position.coords.latitude, position.coords.longitude];
-      runFlow(source, MET_BHUJBAL_LOCATION.name);
+      runFlow(source, MET_BHUJBAL_LOCATION.name, { forceViaPoints: true });
     });
   }
 
